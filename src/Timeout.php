@@ -18,7 +18,7 @@ class Timeout
     protected static ?Timeout $_instance = null;
 
     /**
-     * Obtain default timeout for all connections.
+     * Connections information.
      *
      * @var array<string,{timeout: float, statement: string}>
      */
