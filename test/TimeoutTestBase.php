@@ -30,21 +30,11 @@ abstract class TimeoutTestBase extends TestCase
     {
         parent::setUp();
 
-        config()->set('database.default', 'mariadb');
-        config()->set('database.connections.mariadb', [
+        config()->set('database.default', 'default');
+        config()->set('database.connections.default', [
             'driver' => 'mariadb',
             'host' => '127.0.0.1',
             'port' => '3306',
-            'username' => 'root',
-            'password' => '',
-            'database' => '',
-            'prefix' => '',
-        ]);
-
-        config()->set('database.connections.mysql', [
-            'driver' => 'mysql',
-            'host' => '127.0.0.1',
-            'port' => '33061',
             'username' => 'root',
             'password' => '',
             'database' => '',

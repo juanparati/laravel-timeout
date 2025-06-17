@@ -10,9 +10,10 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  mariadb:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 2
 
     services:
       mariadb:
@@ -21,38 +22,66 @@ jobs:
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
         ports:
           - 3306:3306
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: 1
-        ports:
-          - 3306:33061
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    strategy:
+      fail-fast: true
+
+    name: MariaDB
 
     steps:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, :php-psr
+          tools: composer:v2
 
       - uses: actions/checkout@v4
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-      # Docs: https://getcomposer.org/doc/articles/scripts.md
+      - name: Run test suite
+        run: composer run-script test
+
+  mysql:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_ROOT_PASSWORD: 1
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    strategy:
+      fail-fast: true
+
+    name: MySQL
+
+    steps:
+      - name: Setup PHP with PECL extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_mysql, :php-psr
+          tools: composer:v2
+
+      - uses: actions/checkout@v4
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
 
       - name: Run test suite
         run: composer run-script test
