@@ -1,7 +1,7 @@
 {
     "name": "juanparati/laravel-timeout",
     "description": "Set a timeout to your queries.",
-    "keywords": ["laravel", "database", "db", "query", "timeout"],
+    "keywords": ["laravel", "database", "db", "query", "timeout", "circuit-breaker"],
     "type": "library",
     "require": {
         "php": ">=8.2",
@@ -37,5 +37,10 @@
             "email": "juanparati@gmail.com"
         }
     ],
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "scripts": {
+        "test": [
+            "@php vendor/bin/phpunit"
+        ]
+    }
 }

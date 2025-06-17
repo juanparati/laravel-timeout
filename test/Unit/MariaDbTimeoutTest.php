@@ -6,7 +6,7 @@ use Illuminate\Database\QueryException;
 use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
 use Juanparati\LaravelTimeout\Test\TimeoutTestBase;
 
-class TimeoutTest extends TimeoutTestBase
+class MariaDbTimeoutTest extends TimeoutTestBase
 {
     public function test_timeout()
     {
