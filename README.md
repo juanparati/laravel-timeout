@@ -1,3 +1,5 @@
+![example workflow](https://github.com/juanparati/laravel-timeout/actions/workflows/on_push.yml/badge.svg)
+
 # Laravel Query Timeout ⏰
 
 A Laravel database extension that implements query timeouts at the database level, helping you implement the [circuit breaker pattern](https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern).
