@@ -23,5 +23,5 @@ return [
     | - second
     |
      */
-    'resolution' => 'milliseconds',
+    'resolution' => 'millisecond',
 ];
