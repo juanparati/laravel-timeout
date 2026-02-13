@@ -2,7 +2,8 @@
 
 namespace Juanparati\LaravelTimeout;
 
-use Illuminate\Database\QueryException;
+use Illuminate\Database\Connection;
+use Juanparati\LaravelTimeout\Contracts\TimeoutDriver;
 use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
 
 /**
@@ -18,11 +19,11 @@ class Timeout
     protected static ?Timeout $_instance = null;
 
     /**
-     * Connections information.
+     * Timeout drivers cache
      *
-     * @var array<string,{timeout: float, statement: string}>
+     * @var array<string, TimeoutDriver>
      */
-    protected array $connectionInfo = [];
+    protected array $drivers = [];
 
     /**
      * Singleton.
@@ -43,50 +44,53 @@ class Timeout
      *
      * @throws \Throwable
      */
-    public function timeout(int|float $seconds, callable $callback, ?string $connection = null): float
+    public function timeout(int|float $seconds, callable $callback, string|Connection|null $connection = null): float
     {
-        if ($connection === null) {
-            $connection = \DB::getDefaultConnection();
+        $connection = $connection instanceof Connection
+            ? $connection : ($connection ? \DB::connection($connection) : \DB::connection());
+
+        $connectionName = $connection->getName();
+
+        if (! isset($this->drivers[$connectionName])) {
+            $this->drivers[$connectionName] = new (
+                str($connection->getDriverName())
+                    ->lower()
+                    ->ucfirst()
+                    ->prepend('\\Juanparati\\LaravelTimeout\\Drivers\\')
+                    ->append('TimeoutDriver')->toString()
+            )($connection);
+
+            $this->drivers[$connectionName]->saveDefaultTimeout();
         }
 
-        if (! isset($this->connectionInfo[$connection])) {
-            $this->saveConnectionInfo($connection);
-        }
+        $connection = $this->drivers[$connectionName];
+        $connection->setTimeout($seconds);
 
         $error = null;
-
-        $this->setTimeout($connection, $seconds);
-
         $startTimer = now();
 
         try {
             $callback();
-        } catch (\Throwable $error) {
+        } catch (\Throwable $e) {
+            $error = $e;
+        }
 
-            // It will detect timeout for MariaDB
-            if ($error instanceof QueryException
-                && $error->getCode() == 70100
-                && str($error->getMessage())->contains('max_statement_time exceeded', true)
-            ) {
-                $error = new QueryTimeoutException($connection, $error);
-            }
+        // It's important to reset the default timeout after the callback execution.
+        $connection->resetTimeout();
+
+        if ($error) {
+            throw $connection->throwTimeoutException($error);
         }
 
         $runtime = $startTimer->diffInMicroseconds(now());
 
-        $this->resetTimeout($connection);
-
-        // Unfortunately, MySQL doesn't raise any error or warning with "max_execution_time", so we have to calculate
-        // the runtime and artificially create the exception. This method is non-deterministic because PHP code
-        // execution will use some runtime.
-        if ($this->connectionInfo[$connection]['statement'] === 'max_execution_time') {
+        // Unfortunately, some RDBMS like MySQL doesn't raise any error or warning when the query expired, so we
+        // have to calculate the runtime and artificially to create the exception. This method is non-deterministic
+        // because the PHP code will consume runtime.
+        if (! $connection->canRaiseTimeoutException()) {
             if ($seconds < ($runtime / 1e6)) {
-                $error = new QueryTimeoutException($connection);
+                throw new QueryTimeoutException($connectionName);
             }
-        }
-
-        if ($error) {
-            throw $error;
         }
 
         return $runtime / $this->getTimeResolutionScale();

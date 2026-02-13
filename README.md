@@ -4,8 +4,10 @@
 
 A Laravel database extension that implements query timeouts at the database level, helping you implement the [circuit breaker pattern](https://en.wikipedia.org/wiki/Circuit_breaker_design_pattern).
 
-**Note**: This library only supports MariaDB and MySQL databases.
-
+Compatible with the following RDBMS:
+- MariaDB
+- MySQL
+- PostgreSQL
 
 ## How it works.
 
@@ -14,7 +16,7 @@ Use the `\DB::timeout` method to set a maximum execution time for your queries:
 ```PHP
 \DB::timeout(
     3                                     , // Interrupt if a query takes more than 3 seconds
-    fn() => \DB::select('SELECT SLEEP(4)'), // Your query comes here
+    fn() => \DB::select('SELECT SLEEP(4)'), // Your query comes here (Use pg_sleep for testing with PostgreSQL)
     'myconnection'                          // Keep null for the default connection
 );
 ```
@@ -27,6 +29,7 @@ In the previous example if the query exceeds the specified timeout (3 seconds), 
 Instead of using co-routines or parallel execution monitoring, this library leverages native database features:
 - MariaDB: [max_statement_time](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/system-variables/server-system-variables#max_statement_time)
 - MySQL: [max_execution_time](https://dev.mysql.com/doc/refman/8.4/en/optimizer-hints.html#optimizer-hints-execution-time)
+- PostgreSQL: [statement_timeout](https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-STATEMENT-TIMEOUT)
 
 The timeout mechanism works by:
 1. Setting the timeout value for the database session
