@@ -22,21 +22,24 @@ jobs:
             db_connection: mariadb
             db_image: mariadb:10
             db_port: 3306
-            db_env: MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1
+            db_env_key: MARIADB_ALLOW_EMPTY_ROOT_PASSWORD
+            db_env_value: 1
             health_cmd: healthcheck.sh --connect --innodb_initialized
             pdo_extension: pdo_mysql
           - db: mysql
             db_connection: mysql
             db_image: mysql:8
             db_port: 3306
-            db_env: MYSQL_ALLOW_EMPTY_PASSWORD=1
+            db_env_key: MYSQL_ALLOW_EMPTY_PASSWORD
+            db_env_value: 1
             health_cmd: mysqladmin ping
             pdo_extension: pdo_mysql
           - db: postgresql
             db_connection: pgsql
             db_image: postgres:15
             db_port: 5432
-            db_env: POSTGRES_HOST_AUTH_METHOD=trust
+            db_env_key: POSTGRES_HOST_AUTH_METHOD
+            db_env_value: trust
             health_cmd: pg_isready
             pdo_extension: pdo_pgsql
 
@@ -46,7 +49,7 @@ jobs:
       database:
         image: ${{ matrix.db_image }}
         env:
-          ${{ matrix.db_env }}
+          ${{ matrix.db_env_key }}: ${{ matrix.db_env_value }}
         ports:
           - ${{ matrix.db_port }}:${{ matrix.db_port }}
         options: --health-cmd="${{ matrix.health_cmd }}" --health-interval=10s --health-timeout=5s --health-retries=3
