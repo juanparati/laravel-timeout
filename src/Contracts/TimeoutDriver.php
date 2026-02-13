@@ -3,7 +3,6 @@
 namespace Juanparati\LaravelTimeout\Contracts;
 
 use Illuminate\Database\Connection;
-use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
 
 interface TimeoutDriver
 {

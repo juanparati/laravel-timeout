@@ -9,8 +9,9 @@ use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
 
 class PgsqlTimeoutDriver implements TimeoutDriver
 {
-    public function __construct(protected Connection $connection) {
-        if (!$this->isCompatible()) {
+    public function __construct(protected Connection $connection)
+    {
+        if (! $this->isCompatible()) {
             throw new \RuntimeException('This driver is only compatible with PostgreSQL');
         }
     }
@@ -28,15 +29,15 @@ class PgsqlTimeoutDriver implements TimeoutDriver
 
     public function resetTimeout(): void
     {
-        $this->connection->statement("RESET statement_timeout");
+        $this->connection->statement('RESET statement_timeout');
     }
 
     public function isCompatible(): bool
     {
-        return !empty($this->connection->select("SHOW statement_timeout"));
+        return ! empty($this->connection->select('SHOW statement_timeout'));
     }
 
-    public function throwTimeoutException(\Throwable $error) : never
+    public function throwTimeoutException(\Throwable $error): never
     {
         // It will detect timeout for MariaDB
         if ($error instanceof QueryException

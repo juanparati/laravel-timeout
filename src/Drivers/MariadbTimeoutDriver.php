@@ -13,8 +13,9 @@ class MariadbTimeoutDriver implements TimeoutDriver
 
     protected int|float $defaultTimeout;
 
-    public function __construct(protected Connection $connection) {
-        if (!$this->isCompatible()) {
+    public function __construct(protected Connection $connection)
+    {
+        if (! $this->isCompatible()) {
             throw new \RuntimeException('This driver is only compatible with MariaDB');
         }
     }
@@ -35,7 +36,7 @@ class MariadbTimeoutDriver implements TimeoutDriver
 
     public function isCompatible(): bool
     {
-        return !empty(
+        return ! empty(
             $this->connection
                 ->select(sprintf("SHOW VARIABLES LIKE '%s'", static::VARIABLE_NAME))
         );
@@ -58,7 +59,6 @@ class MariadbTimeoutDriver implements TimeoutDriver
 
         throw $error;
     }
-
 
     public function canRaiseTimeoutException(): bool
     {

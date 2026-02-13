@@ -25,7 +25,6 @@ class Timeout
      */
     protected array $drivers = [];
 
-
     /**
      * Singleton.
      */
@@ -55,10 +54,10 @@ class Timeout
         if (! isset($this->drivers[$connectionName])) {
             $this->drivers[$connectionName] = new (
                 str($connection->getDriverName())
-                ->lower()
-                ->ucfirst()
-                ->prepend('\\Juanparati\\LaravelTimeout\\Drivers\\')
-                ->append('TimeoutDriver')->toString()
+                    ->lower()
+                    ->ucfirst()
+                    ->prepend('\\Juanparati\\LaravelTimeout\\Drivers\\')
+                    ->append('TimeoutDriver')->toString()
             )($connection);
 
             $this->drivers[$connectionName]->saveDefaultTimeout();
@@ -88,7 +87,7 @@ class Timeout
         // Unfortunately, some RDBMS like MySQL doesn't raise any error or warning when the query expired, so we
         // have to calculate the runtime and artificially to create the exception. This method is non-deterministic
         // because the PHP code will consume runtime.
-        if (!$connection->canRaiseTimeoutException()) {
+        if (! $connection->canRaiseTimeoutException()) {
             if ($seconds < ($runtime / 1e6)) {
                 throw new QueryTimeoutException($connectionName);
             }
