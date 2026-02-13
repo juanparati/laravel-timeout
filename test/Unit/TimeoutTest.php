@@ -17,7 +17,10 @@ class TimeoutTest extends TimeoutTestBase
 
         // This one should not raise any error, because max_statement_time/max_execution_time was restored.
         $this->assertDoesntThrow(fn () => static::generateSleepQuery(3));
+
+
     }
+
 
     public function test_without_timeout()
     {
@@ -30,6 +33,7 @@ class TimeoutTest extends TimeoutTestBase
 
         $this->assertNull($error);
     }
+
 
     public function test_runtime()
     {
@@ -47,6 +51,7 @@ class TimeoutTest extends TimeoutTestBase
             1200
         );
     }
+
 
     protected static function generateSleepQuery(int $seconds)
     {

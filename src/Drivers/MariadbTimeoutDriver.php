@@ -22,13 +22,13 @@ class MariadbTimeoutDriver implements TimeoutDriver
     public function setTimeout(float|int $seconds): void
     {
         $this->connection
-            ->statement(sprintf('SET @@SESSION.%s=%d', self::VARIABLE_NAME, $seconds));
+            ->statement(sprintf('SET @@SESSION.%s=%d', static::VARIABLE_NAME, $seconds));
     }
 
     public function saveDefaultTimeout(): int|float
     {
         $default = $this->connection
-            ->select(sprintf('SELECT @@SESSION.%s AS value', self::VARIABLE_NAME))[0]->value;
+            ->select(sprintf('SELECT @@SESSION.%s AS value', static::VARIABLE_NAME))[0]->value;
 
         return $this->defaultTimeout = $default;
     }
@@ -37,7 +37,7 @@ class MariadbTimeoutDriver implements TimeoutDriver
     {
         return !empty(
             $this->connection
-                ->select(sprintf("SHOW VARIABLES LIKE '%s'", self::VARIABLE_NAME))
+                ->select(sprintf("SHOW VARIABLES LIKE '%s'", static::VARIABLE_NAME))
         );
     }
 
