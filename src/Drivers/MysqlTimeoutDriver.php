@@ -3,6 +3,8 @@
 namespace Juanparati\LaravelTimeout\Drivers;
 
 use Illuminate\Database\Connection;
+use Illuminate\Database\QueryException;
+use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
 
 class MysqlTimeoutDriver extends MariadbTimeoutDriver
 {
@@ -23,11 +25,20 @@ class MysqlTimeoutDriver extends MariadbTimeoutDriver
 
     public function throwTimeoutException(\Throwable $error): never
     {
+        // It will detect timeout for MariaDB
+        if ($error instanceof QueryException
+            && $error->getCode() === 'HY000'
+            && str($error->getMessage())->contains('time exceeded', true)
+        ) {
+            throw new QueryTimeoutException($this->connection->getName(), $error);
+        }
+
         throw $error;
     }
 
     public function canRaiseTimeoutException(): bool
     {
+        // Unfortunately, MySQL doesn't raise exceptions on timeouts for calculated queries.
         return false;
     }
 }

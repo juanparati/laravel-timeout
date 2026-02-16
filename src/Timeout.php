@@ -84,9 +84,9 @@ class Timeout
 
         $runtime = $startTimer->diffInMicroseconds(now());
 
-        // Unfortunately, some RDBMS like MySQL doesn't raise any error or warning when the query expired, so we
-        // have to calculate the runtime and artificially to create the exception. This method is non-deterministic
-        // because the PHP code will consume runtime.
+        // Unfortunately, some RDBMS like MySQL doesn't raise any error or warning every time when the query expired,
+        // so we have to calculate the runtime and artificially to create the exception.
+        // This method is non-deterministic because the PHP code will consume runtime.
         if (! $connection->canRaiseTimeoutException()) {
             if ($seconds < ($runtime / 1e6)) {
                 throw new QueryTimeoutException($connectionName);
@@ -94,49 +94,6 @@ class Timeout
         }
 
         return $runtime / $this->getTimeResolutionScale();
-    }
-
-    /**
-     * Get and save the default session timeout.
-     */
-    protected function saveConnectionInfo(string $connection): void
-    {
-        try {
-            $useMaxStatementTime = ! empty(\DB::select("SHOW VARIABLES LIKE 'max_statement_time'"));
-        } catch (\Exception $e) {
-            $useMaxStatementTime = false;
-        }
-
-        $statement = $useMaxStatementTime ? 'max_statement_time' : 'max_execution_time';
-        $timeout = \DB::connection($connection)->select("SELECT @@SESSION.$statement AS value")[0]->value;
-
-        $this->connectionInfo[$connection] = [
-            'statement' => $statement,
-            'timeout' => $timeout,
-        ];
-    }
-
-    /**
-     * Reset the default session timeout.
-     */
-    protected function resetTimeout(string $connection): void
-    {
-        static::setTimeout($connection, $this->connectionInfo[$connection]['timeout']);
-    }
-
-    /**
-     * Set the maximum statement time.
-     */
-    protected function setTimeout(string $connection, int|float $seconds): void
-    {
-        if ($this->connectionInfo[$connection]['statement'] === 'max_execution_time') {
-            $seconds = (float) $seconds * 1000; // max_execution_time uses milliseconds
-        } else {
-            $seconds = (int) $seconds;
-        }
-
-        \DB::connection($connection)
-            ->statement("SET @@SESSION.{$this->connectionInfo[$connection]['statement']}=$seconds");
     }
 
     /**
