@@ -57,8 +57,7 @@ The timeout mechanism works by:
 ### MySQL-specific
 
 - Only "select" queries are timed out in MySQL.
-- Unfortunately, MySQL kills the query silently without raising any error and always returns an empty result, so the way that laravel-timeout determines when a query was in reality timed out it's measuring the execution time and creating artificially an exception, so I recommend run only one single query inside the closure when MySQL is used.
-
+- Unfortunately, for calculated queries MySQL kills the query silently without raising any error, so in this case laravel-timeout determines when a query is timed out measuring the execution time and creating artificially an exception.
 
 ### MariaDB-specific
 
