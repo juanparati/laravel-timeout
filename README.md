@@ -11,17 +11,17 @@ Compatible with the following RDBMS:
 
 ## How it works.
 
-Use the `\DB::timeout` method to set a maximum execution time for your queries:
+Use the `QueryTimeout` facade to set a maximum execution time for your queries:
 
 ```PHP
-\DB::timeout(
+\QueryTimeout(
     3                                     , // Interrupt if a query takes more than 3 seconds
     fn() => \DB::select('SELECT SLEEP(4)'), // Your query comes here (Use pg_sleep for testing with PostgreSQL)
-    'myconnection'                          // Keep null for the default connection
+    'myconnection'                          // Database connection (Keep null for the default connection)
 );
 ```
 
-In the previous example if the query exceeds the specified timeout (3 seconds), it will be terminated and throw a `\Juanparati\LaravelTimeout\QueryTimeoutException`.
+In the previous example if the query exceeds the specified timeout (3 seconds), it will be terminated and throw a `\Juanparati\QueryTimeout\QueryTimeoutException`.
 
 
 ## How it works under the hood
@@ -32,9 +32,9 @@ Instead of using co-routines or parallel execution monitoring, this library leve
 - PostgreSQL: [statement_timeout](https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-STATEMENT-TIMEOUT)
 
 The timeout mechanism works by:
-1. Setting the timeout value for the database session
-2. Executing the query
-3. Restoring the original timeout value
+1. Setting the timeout value for the database session.
+2. Executing the query.
+3. Restoring the original timeout value even if the main query fails.
 
 ```
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -57,7 +57,7 @@ The timeout mechanism works by:
 ### MySQL-specific
 
 - Only "select" queries are timed out in MySQL.
-- Unfortunately, for calculated queries MySQL kills the query silently without raising any error, so in this cases laravel-timeout determines when a query is timed out measuring the execution time and creating artificially an exception.
+- Unfortunately, for calculated queries MySQL kills the query silently without raising any error, so in this case query-timeout determines when a query is timed out measuring the execution time and creating artificially an exception.
 
 
 ### MariaDB-specific
@@ -80,7 +80,7 @@ The timeout mechanism works by:
 ```PHP
 $users = null;
 
-\DB::timeout(
+\QueryTimeout(
     5, 
     fn() => $users = User::where('name', 'like', 'john%')->get()   
 );
@@ -95,7 +95,7 @@ foreach ($users as $user) {
 ❌ Not recommended:
 
 ```PHP
-\DB::timeout(
+\QueryTimeout(
     5, 
     function() {
         $users = User::where('name', 'like', 'john%')->get()
@@ -117,5 +117,5 @@ foreach ($users as $user) {
 ### Publish configuration (Optional)
 
 ```BASH
-artisan vendor:publish --tag="timeout"
+artisan vendor:publish --tag="query-timeout"
 ```

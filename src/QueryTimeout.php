@@ -1,41 +1,24 @@
 <?php
 
-namespace Juanparati\LaravelTimeout;
+namespace Juanparati\QueryTimeout;
 
 use Illuminate\Database\Connection;
-use Juanparati\LaravelTimeout\Contracts\TimeoutDriver;
-use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
+use Juanparati\QueryTimeout\Contracts\QueryTimeoutDriver;
+use Juanparati\QueryTimeout\Exceptions\QueryTimeoutException;
 
 /**
  * Provides a control method through a closure for controlling query timeouts.
  *
  * It facilitates the implementation of a circuit-break pattern.
  */
-class Timeout
+class QueryTimeout
 {
-    /**
-     * Singleton instance.
-     */
-    protected static ?Timeout $_instance = null;
-
     /**
      * Timeout drivers cache
      *
-     * @var array<string, TimeoutDriver>
+     * @var array<string, QueryTimeoutDriver>
      */
     protected array $drivers = [];
-
-    /**
-     * Singleton.
-     */
-    public static function getInstance(): static
-    {
-        if (! static::$_instance) {
-            static::$_instance = new static;
-        }
-
-        return static::$_instance;
-    }
 
     /**
      * Set max timeout into session and execute the callback.
@@ -44,7 +27,7 @@ class Timeout
      *
      * @throws \Throwable
      */
-    public function timeout(int|float $seconds, callable $callback, string|Connection|null $connection = null): float
+    public function __invoke(int|float $seconds, callable $callback, string|Connection|null $connection = null): float
     {
         $connection = $connection instanceof Connection
             ? $connection : ($connection ? \DB::connection($connection) : \DB::connection());
@@ -56,8 +39,8 @@ class Timeout
                 str($connection->getDriverName())
                     ->lower()
                     ->ucfirst()
-                    ->prepend('\\Juanparati\\LaravelTimeout\\Drivers\\')
-                    ->append('TimeoutDriver')->toString()
+                    ->prepend('\\Juanparati\\QueryTimeout\\Drivers\\')
+                    ->append('QueryTimeoutDriver')->toString()
             )($connection);
 
             $this->drivers[$connectionName]->saveDefaultTimeout();

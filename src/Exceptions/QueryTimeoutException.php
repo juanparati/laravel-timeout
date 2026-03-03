@@ -1,6 +1,6 @@
 <?php
 
-namespace Juanparati\LaravelTimeout\Exceptions;
+namespace Juanparati\QueryTimeout\Exceptions;
 
 use PDOException;
 

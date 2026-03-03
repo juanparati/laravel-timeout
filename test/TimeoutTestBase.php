@@ -1,8 +1,8 @@
 <?php
 
-namespace Juanparati\LaravelTimeout\Test;
+namespace Juanparati\QueryTimeout\Test;
 
-use Juanparati\LaravelTimeout\Providers\TimeoutProvider;
+use Juanparati\QueryTimeout\Providers\QueryTimeoutProvider;
 use Orchestra\Testbench\TestCase;
 
 /**
@@ -18,7 +18,7 @@ abstract class TimeoutTestBase extends TestCase
      */
     protected function getPackageProviders($app): array
     {
-        return [TimeoutProvider::class];
+        return [QueryTimeoutProvider::class];
     }
 
     /**

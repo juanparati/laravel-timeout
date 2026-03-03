@@ -1,10 +1,10 @@
 <?php
 
-namespace Juanparati\LaravelTimeout\Contracts;
+namespace Juanparati\QueryTimeout\Contracts;
 
 use Illuminate\Database\Connection;
 
-interface TimeoutDriver
+interface QueryTimeoutDriver
 {
     public function __construct(Connection $connection);
 
