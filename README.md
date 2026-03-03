@@ -59,6 +59,7 @@ The timeout mechanism works by:
 - Only "select" queries are timed out in MySQL.
 - Unfortunately, for calculated queries MySQL kills the query silently without raising any error, so in this case query-timeout determines when a query is timed out measuring the execution time and creating artificially an exception.
 
+
 ### MariaDB-specific
 
 - Old MariaDB embedded servers may not work properly.
