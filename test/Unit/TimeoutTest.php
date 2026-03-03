@@ -1,17 +1,18 @@
 <?php
 
-namespace Juanparati\LaravelTimeout\Test\Unit;
+namespace Juanparati\QueryTimeout\Test\Unit;
 
 use Illuminate\Database\QueryException;
-use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
-use Juanparati\LaravelTimeout\Test\TimeoutTestBase;
+use Juanparati\QueryTimeout\Exceptions\QueryTimeoutException;
+use Juanparati\QueryTimeout\QueryTimeout;
+use Juanparati\QueryTimeout\Test\TimeoutTestBase;
 
 class TimeoutTest extends TimeoutTestBase
 {
     public function test_timeout()
     {
         $this->assertThrows(
-            fn () => \DB::timeout(2, fn () => static::generateSleepQuery(3)),
+            fn () => app(QueryTimeout::class)(2, fn () => static::generateSleepQuery(3)),
             QueryTimeoutException::class
         );
 
@@ -25,7 +26,7 @@ class TimeoutTest extends TimeoutTestBase
         $error = null;
 
         try {
-            \DB::timeout(3, fn () => \DB::select('SELECT TRUE'));
+            app(QueryTimeout::class)(3, fn () => \DB::select('SELECT TRUE'));
         } catch (QueryException $error) {
         }
 
@@ -37,14 +38,14 @@ class TimeoutTest extends TimeoutTestBase
         config()->set('timeout.resolution', 'second');
 
         $this->assertGreaterThan(
-            \DB::timeout(2, fn () => static::generateSleepQuery(1)),
+            app(QueryTimeout::class)(2, fn () => static::generateSleepQuery(1)),
             2
         );
 
         config()->set('timeout.resolution', 'millisecond');
 
         $this->assertGreaterThan(
-            \DB::timeout(2, fn () => static::generateSleepQuery(1)),
+            app(QueryTimeout::class)(2, fn () => static::generateSleepQuery(1)),
             1200
         );
     }

@@ -1,7 +1,7 @@
 {
-    "name": "juanparati/laravel-timeout",
-    "description": "Set a timeout to your queries.",
-    "keywords": ["laravel", "database", "db", "query", "timeout", "circuit-breaker"],
+    "name": "juanparati/query-timeout",
+    "description": "Set a timeout to your Laravel queries.",
+    "keywords": ["laravel", "database", "db", "query", "timeout", "circuit-breaker", "orm"],
     "type": "library",
     "require": {
         "php": ">=8.2",
@@ -16,19 +16,22 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Juanparati\\LaravelTimeout\\": "src/"
+            "Juanparati\\QueryTimeout\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Juanparati\\LaravelTimeout\\Test\\": "test"
+            "Juanparati\\QueryTimeout\\Test\\": "test"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Juanparati\\LaravelTimeout\\Providers\\TimeoutProvider"
-            ]
+                "QueryTimeoutProvider"
+            ],
+            "aliases": {
+                "QueryTimeout": "Juanparati\\QueryTimeout\\DbTimeout"
+            }
         }
     },
     "authors": [

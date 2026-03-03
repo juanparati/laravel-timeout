@@ -1,13 +1,13 @@
 <?php
 
-namespace Juanparati\LaravelTimeout\Drivers;
+namespace Juanparati\QueryTimeout\Drivers;
 
 use Illuminate\Database\Connection;
 use Illuminate\Database\QueryException;
-use Juanparati\LaravelTimeout\Contracts\TimeoutDriver;
-use Juanparati\LaravelTimeout\Exceptions\QueryTimeoutException;
+use Juanparati\QueryTimeout\Contracts\QueryTimeoutDriver;
+use Juanparati\QueryTimeout\Exceptions\QueryTimeoutException;
 
-class MariadbTimeoutDriver implements TimeoutDriver
+class MariadbQueryTimeoutDriver implements QueryTimeoutDriver
 {
     protected const VARIABLE_NAME = 'max_statement_time';
 
