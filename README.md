@@ -1,3 +1,6 @@
+> [!WARNING]
+> This package is abandoned. Use [https://github.com/juanparati/query-timeout](https://github.com/juanparati/query-timeout) instead.
+
 ![example workflow](https://github.com/juanparati/laravel-timeout/actions/workflows/on_push.yml/badge.svg)
 
 # Laravel Query Timeout ⏰
